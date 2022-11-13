@@ -131,23 +131,7 @@ namespace Ryujinx.Graphics.OpenGL
                 maximumImagesPerStage: 8,
                 maximumComputeSharedMemorySize: HwCapabilities.MaximumComputeSharedMemorySize,
                 maximumSupportedAnisotropy: HwCapabilities.MaximumSupportedAnisotropy,
-                storageBufferOffsetAlignment: HwCapabilities.StorageBufferOffsetAlignment,
-                HwCapabilities.Vendor == HwCapabilities.GpuVendor.IntelWindows,
-                HwCapabilities.Vendor == HwCapabilities.GpuVendor.AmdWindows,
-                HwCapabilities.SupportsAstcCompression,
-                HwCapabilities.SupportsBlendEquationAdvanced,
-                HwCapabilities.SupportsFragmentShaderInterlock,
-                HwCapabilities.SupportsFragmentShaderOrdering,
-                HwCapabilities.SupportsImageLoadFormatted,
-                HwCapabilities.SupportsMismatchingViewFormat,
-                HwCapabilities.SupportsNonConstantTextureOffset,
-                HwCapabilities.SupportsShaderBallot,
-                HwCapabilities.SupportsTextureShadowLod,
-                HwCapabilities.SupportsViewportSwizzle,
-                HwCapabilities.SupportsIndirectParameters,
-                HwCapabilities.MaximumComputeSharedMemorySize,
-                HwCapabilities.MaximumSupportedAnisotropy,
-                HwCapabilities.StorageBufferOffsetAlignment);
+                storageBufferOffsetAlignment: HwCapabilities.StorageBufferOffsetAlignment);
         }
 
         public void SetBufferData(BufferHandle buffer, int offset, ReadOnlySpan<byte> data)
