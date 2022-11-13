@@ -62,14 +62,10 @@ namespace Ryujinx.Graphics.Gpu.Engine.MME
                 }
             }
 
-            // We don't consume the parameter buffer value, so we don't need to flush it.
-            // Doing so improves performance if the value was written by a GPU shader.
-            if (_hleFunction == MacroHLEFunctionName.DrawElementsIndirect)
+            if (_hleFunction == MacroHLEFunctionName.MultiDrawElementsIndirectCount)
             {
-                context.GPFifo.SetFlushSkips(1);
-            }
-            else if (_hleFunction == MacroHLEFunctionName.MultiDrawElementsIndirectCount)
-            {
+                // We don't consume the parameter buffer value, so we don't need to flush it.
+                // Doing so improves performance if the value was written by a GPU shader.
                 context.GPFifo.SetFlushSkips(2);
             }
         }
