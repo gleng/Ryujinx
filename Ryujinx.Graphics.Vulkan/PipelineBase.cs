@@ -2,7 +2,9 @@
 using Ryujinx.Graphics.Shader;
 using Silk.NET.Vulkan;
 using System;
+using System.Drawing.Drawing2D;
 using System.Numerics;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -10,6 +12,8 @@ namespace Ryujinx.Graphics.Vulkan
 {
     class PipelineBase : IDisposable
     {
+        private bool _advancedBlendEnable;
+
         public const int DescriptorSetLayouts = 4;
 
         public const int UniformSetIndex = 0;
@@ -667,9 +671,36 @@ namespace Ryujinx.Graphics.Vulkan
             // to avoid creating one version of the shader per reference value used.
         }
 
+
+        public void SetBlendState(AdvancedBlendDescriptor blend)
+        {
+            if (Gd.Capabilities.SupportsBlendEquationAdvanced)
+            {
+                //ref var vkBlend = ref _newState.Internal.ColorBlendAttachmentState[0];
+                
+               // vkBlend.BlendParameter(NvBlendEquationAdvanced.BlendOverlapNv, (int)blend.Overlap.Convert());
+               // vkBlend.BlendParameter(NvBlendEquationAdvanced.BlendPremultipliedSrcNv, blend.SrcPreMultiplied ? 1 : 0);
+
+                //vkBlend.BlendEnable = true;
+               // vkBlend.ColorBlendOp = blend.Mode.Convert();
+
+                //vkBlend.AlphaBlendOp = blend.Mode.Convert();
+              //  _advancedBlendEnable = true;
+              //  SignalStateChange();
+            }
+        }
+
+
         public void SetBlendState(int index, BlendDescriptor blend)
         {
             ref var vkBlend = ref _newState.Internal.ColorBlendAttachmentState[index];
+
+            //if (_advancedBlendEnable)
+            //{
+            //    vkBlend.BlendEnable = false;
+            //    _advancedBlendEnable = false;
+            //}
+
 
             if (blend.Enable)
             {

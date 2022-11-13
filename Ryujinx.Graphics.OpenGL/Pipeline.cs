@@ -61,7 +61,6 @@ namespace Ryujinx.Graphics.OpenGL
         private uint _currentComponentMasks;
         private bool _advancedBlendEnable;
 
-        private readonly uint[] _componentMasks;
 
         private uint _scissorEnables;
 

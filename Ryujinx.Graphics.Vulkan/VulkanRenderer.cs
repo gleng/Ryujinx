@@ -190,6 +190,7 @@ namespace Ryujinx.Graphics.Vulkan
 
             Capabilities = new HardwareCapabilities(
                 supportedExtensions.Contains("VK_EXT_index_type_uint8"),
+                supportedExtensions.Contains("VK_EXT_blend_operation_advanced"),
                 supportedExtensions.Contains("VK_EXT_custom_border_color"),
                 supportedExtensions.Contains(KhrDrawIndirectCount.ExtensionName),
                 supportedExtensions.Contains("VK_EXT_fragment_shader_interlock"),
@@ -386,6 +387,7 @@ namespace Ryujinx.Graphics.Vulkan
                 hasFrontFacingBug: IsIntelWindows,
                 hasVectorIndexingBug: Vendor == Vendor.Qualcomm,
                 supportsAstcCompression: features2.Features.TextureCompressionAstcLdr,
+                supportsBlendEquationAdvanced: Capabilities.SupportsBlendEquationAdvanced,
                 supportsBc123Compression: supportsBc123CompressionFormat,
                 supportsBc45Compression: supportsBc45CompressionFormat,
                 supportsBc67Compression: supportsBc67CompressionFormat,

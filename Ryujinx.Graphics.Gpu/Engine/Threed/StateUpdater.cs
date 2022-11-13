@@ -85,14 +85,6 @@ namespace Ryujinx.Graphics.Gpu.Engine.Threed
 
                 new StateUpdateCallbackEntry(UpdateVertexAttribState, nameof(ThreedClassState.VertexAttribState)),
 
-                new StateUpdateCallbackEntry(UpdateBlendState,
-                    nameof(ThreedClassState.BlendIndependent),
-                    nameof(ThreedClassState.BlendConstant),
-                    nameof(ThreedClassState.BlendStateCommon),
-                    nameof(ThreedClassState.BlendEnableCommon),
-                    nameof(ThreedClassState.BlendEnable),
-                    nameof(ThreedClassState.BlendState)),
-
                 new StateUpdateCallbackEntry(UpdateFaceState, nameof(ThreedClassState.FaceState)),
 
                 new StateUpdateCallbackEntry(UpdateStencilTestState,
@@ -116,8 +108,6 @@ namespace Ryujinx.Graphics.Gpu.Engine.Threed
                     nameof(ThreedClassState.ViewportExtents),
                     nameof(ThreedClassState.YControl),
                     nameof(ThreedClassState.ViewportTransformEnable)),
-
-                new StateUpdateCallbackEntry(UpdateLogicOpState, nameof(ThreedClassState.LogicOpState)),
 
                 new StateUpdateCallbackEntry(UpdateDepthClampState, nameof(ThreedClassState.ViewVolumeClipControl)),
 
@@ -184,13 +174,7 @@ namespace Ryujinx.Graphics.Gpu.Engine.Threed
 
                 new StateUpdateCallbackEntry(UpdateMultisampleState,
                     nameof(ThreedClassState.AlphaToCoverageDitherEnable),
-                    nameof(ThreedClassState.MultisampleControl))
-
-                new StateUpdateCallbackEntry(UpdateFaceState, nameof(ThreedClassState.FaceState)),
-
-                new StateUpdateCallbackEntry(UpdateRtColorMask,
-                    nameof(ThreedClassState.RtColorMaskShared),
-                    nameof(ThreedClassState.RtColorMask)),
+                    nameof(ThreedClassState.MultisampleControl)),
 
                 new StateUpdateCallbackEntry(UpdateBlendState,
                     nameof(ThreedClassState.BlendUcodeEnable),
@@ -1107,19 +1091,19 @@ namespace Ryujinx.Graphics.Gpu.Engine.Threed
         /// </summary>
         private void UpdateBlendState()
         {
-            if (_state.State.BlendUcodeEnable != BlendUcodeEnable.Disabled)
-            {
-                if (_context.Capabilities.SupportsBlendEquationAdvanced && _blendManager.TryGetAdvancedBlend(out var blendDescriptor))
-                {
-                    // Try to HLE it using advanced blend on the host if we can.
-                    _context.Renderer.Pipeline.SetBlendState(blendDescriptor);
-                    return;
-                }
-                else
-                {
-                    // TODO: Blend emulation fallback.
-                }
-            }
+            //if (_state.State.BlendUcodeEnable != BlendUcodeEnable.Disabled)
+            //{
+            //    if (_context.Capabilities.SupportsBlendEquationAdvanced && _blendManager.TryGetAdvancedBlend(out var blendDescriptor))
+            //    {
+            //        // Try to HLE it using advanced blend on the host if we can.
+            //        _context.Renderer.Pipeline.SetBlendState(blendDescriptor);
+            //        return;
+            //    }
+            //    else
+            //    {
+            //        // TODO: Blend emulation fallback.
+            //    }
+            //}
 
             bool blendIndependent = _state.State.BlendIndependent;
             ColorF blendConstant = _state.State.BlendConstant;

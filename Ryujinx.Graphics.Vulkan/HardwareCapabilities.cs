@@ -5,6 +5,7 @@ namespace Ryujinx.Graphics.Vulkan
     struct HardwareCapabilities
     {
         public readonly bool SupportsIndexTypeUint8;
+        public readonly bool SupportsBlendEquationAdvanced;
         public readonly bool SupportsCustomBorderColor;
         public readonly bool SupportsIndirectParameters;
         public readonly bool SupportsFragmentShaderInterlock;
@@ -25,6 +26,7 @@ namespace Ryujinx.Graphics.Vulkan
 
         public HardwareCapabilities(
             bool supportsIndexTypeUint8,
+            bool supportsBlendEquationAdvanced,
             bool supportsCustomBorderColor,
             bool supportsIndirectParameters,
             bool supportsFragmentShaderInterlock,
@@ -44,6 +46,7 @@ namespace Ryujinx.Graphics.Vulkan
             ShaderStageFlags requiredSubgroupSizeStages)
         {
             SupportsIndexTypeUint8 = supportsIndexTypeUint8;
+            SupportsBlendEquationAdvanced = supportsBlendEquationAdvanced;
             SupportsCustomBorderColor = supportsCustomBorderColor;
             SupportsIndirectParameters = supportsIndirectParameters;
             SupportsFragmentShaderInterlock = supportsFragmentShaderInterlock;

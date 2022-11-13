@@ -22,6 +22,127 @@ namespace Ryujinx.Graphics.Vulkan
             };
         }
 
+        public static Silk.NET.Vulkan.BlendOp Convert(this AdvancedBlendMode mode)
+        {
+            switch (mode)
+            {
+                case AdvancedBlendMode.Zero:
+                    return Silk.NET.Vulkan.BlendOp.Add;
+                case AdvancedBlendMode.Src:
+                    return Silk.NET.Vulkan.BlendOp.SrcExt;
+                case AdvancedBlendMode.Dst:
+                    return Silk.NET.Vulkan.BlendOp.DstExt;
+                case AdvancedBlendMode.SrcOver:
+                    return Silk.NET.Vulkan.BlendOp.SrcOverExt;
+                case AdvancedBlendMode.DstOver:
+                    return Silk.NET.Vulkan.BlendOp.DstOverExt;
+                case AdvancedBlendMode.SrcIn:
+                    return Silk.NET.Vulkan.BlendOp.SrcInExt;
+                case AdvancedBlendMode.DstIn:
+                    return Silk.NET.Vulkan.BlendOp.DstInExt;
+                case AdvancedBlendMode.SrcOut:
+                    return Silk.NET.Vulkan.BlendOp.SrcOutExt;
+                case AdvancedBlendMode.DstOut:
+                    return Silk.NET.Vulkan.BlendOp.DstOutExt;
+                case AdvancedBlendMode.SrcAtop:
+                    return Silk.NET.Vulkan.BlendOp.SrcAtopExt;
+                case AdvancedBlendMode.DstAtop:
+                    return Silk.NET.Vulkan.BlendOp.DstAtopExt;
+                case AdvancedBlendMode.Xor:
+                    return Silk.NET.Vulkan.BlendOp.XorExt;
+                case AdvancedBlendMode.Plus:
+                    return Silk.NET.Vulkan.BlendOp.PlusExt;
+                case AdvancedBlendMode.PlusClamped:
+                    return Silk.NET.Vulkan.BlendOp.PlusClampedExt;
+                case AdvancedBlendMode.PlusClampedAlpha:
+                    return Silk.NET.Vulkan.BlendOp.PlusClampedAlphaExt;
+                case AdvancedBlendMode.PlusDarker:
+                    return Silk.NET.Vulkan.BlendOp.PlusDarkerExt;
+                case AdvancedBlendMode.Multiply:
+                    return Silk.NET.Vulkan.BlendOp.MultiplyExt;
+                case AdvancedBlendMode.Screen:
+                    return Silk.NET.Vulkan.BlendOp.ScreenExt;
+                case AdvancedBlendMode.Overlay:
+                    return Silk.NET.Vulkan.BlendOp.OverlayExt;
+                case AdvancedBlendMode.Darken:
+                    return Silk.NET.Vulkan.BlendOp.DarkenExt;
+                case AdvancedBlendMode.Lighten:
+                    return Silk.NET.Vulkan.BlendOp.LightenExt;
+                case AdvancedBlendMode.ColorDodge:
+                    return Silk.NET.Vulkan.BlendOp.ColordodgeExt;
+                case AdvancedBlendMode.ColorBurn:
+                    return Silk.NET.Vulkan.BlendOp.ColorburnExt;
+                case AdvancedBlendMode.HardLight:
+                    return Silk.NET.Vulkan.BlendOp.HardlightExt;
+                case AdvancedBlendMode.SoftLight:
+                    return Silk.NET.Vulkan.BlendOp.SoftlightExt;
+                case AdvancedBlendMode.Difference:
+                    return Silk.NET.Vulkan.BlendOp.DifferenceExt;
+                case AdvancedBlendMode.Minus:
+                    return Silk.NET.Vulkan.BlendOp.MinusExt;
+                case AdvancedBlendMode.MinusClamped:
+                    return Silk.NET.Vulkan.BlendOp.MinusClampedExt;
+                case AdvancedBlendMode.Exclusion:
+                    return Silk.NET.Vulkan.BlendOp.ExclusionExt;
+                case AdvancedBlendMode.Contrast:
+                    return Silk.NET.Vulkan.BlendOp.ContrastExt;
+                case AdvancedBlendMode.Invert:
+                    return Silk.NET.Vulkan.BlendOp.InvertExt;
+                case AdvancedBlendMode.InvertRGB:
+                    return Silk.NET.Vulkan.BlendOp.InvertRgbExt;
+                case AdvancedBlendMode.InvertOvg:
+                    return Silk.NET.Vulkan.BlendOp.InvertOvgExt;
+                case AdvancedBlendMode.LinearDodge:
+                    return Silk.NET.Vulkan.BlendOp.LineardodgeExt;
+                case AdvancedBlendMode.LinearBurn:
+                    return Silk.NET.Vulkan.BlendOp.LinearburnExt;
+                case AdvancedBlendMode.VividLight:
+                    return Silk.NET.Vulkan.BlendOp.VividlightExt;
+                case AdvancedBlendMode.LinearLight:
+                    return Silk.NET.Vulkan.BlendOp.LinearlightExt;
+                case AdvancedBlendMode.PinLight:
+                    return Silk.NET.Vulkan.BlendOp.PinlightExt;
+                case AdvancedBlendMode.HardMix:
+                    return Silk.NET.Vulkan.BlendOp.HardmixExt;
+                case AdvancedBlendMode.Red:
+                    return Silk.NET.Vulkan.BlendOp.RedExt;
+                case AdvancedBlendMode.Green:
+                    return Silk.NET.Vulkan.BlendOp.GreenExt;
+                case AdvancedBlendMode.Blue:
+                    return Silk.NET.Vulkan.BlendOp.BlueExt;
+                case AdvancedBlendMode.HslHue:
+                    return Silk.NET.Vulkan.BlendOp.HslHueExt;
+                case AdvancedBlendMode.HslSaturation:
+                    return Silk.NET.Vulkan.BlendOp.HslSaturationExt;
+                case AdvancedBlendMode.HslColor:
+                    return Silk.NET.Vulkan.BlendOp.HslColorExt;
+                case AdvancedBlendMode.HslLuminosity:
+                    return Silk.NET.Vulkan.BlendOp.HslLuminosityExt;
+            }
+
+            Logger.Debug?.Print(LogClass.Gpu, $"Invalid {nameof(AdvancedBlendMode)} enum value: {mode}.");
+
+            return Silk.NET.Vulkan.BlendOp.ZeroExt;
+        }
+
+        public static Silk.NET.Vulkan.BlendOverlapEXT Convert(this AdvancedBlendOverlap overlap)
+        {
+            switch (overlap)
+            {
+                case AdvancedBlendOverlap.Uncorrelated:
+                    return Silk.NET.Vulkan.BlendOverlapEXT.BlendOverlapUncorrelatedExt;
+                case AdvancedBlendOverlap.Disjoint:
+                    return Silk.NET.Vulkan.BlendOverlapEXT.BlendOverlapDisjointExt;
+                case AdvancedBlendOverlap.Conjoint:
+                    return Silk.NET.Vulkan.BlendOverlapEXT.BlendOverlapConjointExt;
+            }
+
+            Logger.Debug?.Print(LogClass.Gpu, $"Invalid {nameof(AdvancedBlendOverlap)} enum value: {overlap}.");
+
+            return Silk.NET.Vulkan.BlendOverlapEXT.BlendOverlapUncorrelatedExt;
+        }
+
+
         public static PipelineStageFlags ConvertToPipelineStageFlags(this ShaderStage stage)
         {
             return stage switch

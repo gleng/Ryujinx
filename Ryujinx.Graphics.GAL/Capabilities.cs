@@ -11,6 +11,7 @@ namespace Ryujinx.Graphics.GAL
         public readonly bool HasVectorIndexingBug;
 
         public readonly bool SupportsAstcCompression;
+        public readonly bool SupportsBlendEquationAdvanced;
         public readonly bool SupportsBc123Compression;
         public readonly bool SupportsBc45Compression;
         public readonly bool SupportsBc67Compression;
@@ -45,13 +46,13 @@ namespace Ryujinx.Graphics.GAL
             bool hasFrontFacingBug,
             bool hasVectorIndexingBug,
             bool supportsAstcCompression,
+            bool supportsBlendEquationAdvanced,
             bool supportsBc123Compression,
             bool supportsBc45Compression,
             bool supportsBc67Compression,
             bool supports3DTextureCompression,
             bool supportsBgraFormat,
             bool supportsR4G4Format,
-            bool supportsBlendEquationAdvanced,
             bool supportsFragmentShaderInterlock,
             bool supportsFragmentShaderOrderingIntel,
             bool supportsGeometryShaderPassthrough,
@@ -77,13 +78,13 @@ namespace Ryujinx.Graphics.GAL
             HasFrontFacingBug = hasFrontFacingBug;
             HasVectorIndexingBug = hasVectorIndexingBug;
             SupportsAstcCompression = supportsAstcCompression;
+            SupportsBlendEquationAdvanced = supportsBlendEquationAdvanced;
             SupportsBc123Compression = supportsBc123Compression;
             SupportsBc45Compression = supportsBc45Compression;
             SupportsBc67Compression = supportsBc67Compression;
             Supports3DTextureCompression = supports3DTextureCompression;
             SupportsBgraFormat = supportsBgraFormat;
             SupportsR4G4Format = supportsR4G4Format;
-            SupportsBlendEquationAdvanced = supportsBlendEquationAdvanced;
             SupportsFragmentShaderInterlock = supportsFragmentShaderInterlock;
             SupportsFragmentShaderOrderingIntel = supportsFragmentShaderOrderingIntel;
             SupportsGeometryShaderPassthrough = supportsGeometryShaderPassthrough;
