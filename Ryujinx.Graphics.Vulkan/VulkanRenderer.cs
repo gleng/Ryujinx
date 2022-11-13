@@ -405,7 +405,7 @@ namespace Ryujinx.Graphics.Vulkan
                 supportsTextureShadowLod: false,
                 supportsViewportIndex: featuresVk12.ShaderOutputViewportIndex,
                 supportsViewportSwizzle: false,
-                supportsIndirectParameters: true,
+                supportsIndirectParameters: Capabilities.SupportsIndirectParameters,
                 maximumUniformBuffersPerStage: Constants.MaxUniformBuffersPerStage,
                 maximumStorageBuffersPerStage: Constants.MaxStorageBuffersPerStage,
                 maximumTexturesPerStage: Constants.MaxTexturesPerStage,

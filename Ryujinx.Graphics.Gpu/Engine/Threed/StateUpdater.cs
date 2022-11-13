@@ -40,7 +40,6 @@ namespace Ryujinx.Graphics.Gpu.Engine.Threed
         private byte _vsClipDistancesWritten;
 
         private bool _prevDrawIndexed;
-        private bool _prevDrawIndirect;
         private IndexType _prevIndexType;
         private uint _prevFirstVertex;
         private bool _prevTfEnable;
@@ -246,15 +245,6 @@ namespace Ryujinx.Graphics.Gpu.Engine.Threed
                 }
 
                 _prevDrawIndexed = _drawState.DrawIndexed;
-            }
-
-            // Some draw parameters are used to restrict the vertex buffer size,
-            // but they can't be used on direct draws because their values are unknown in this case.
-            // When switching between indirect and non-indirect draw, we need to
-            // make sure the vertex buffer sizes are still correct.
-            if (_drawState.DrawIndirect != _prevDrawIndirect)
-            {
-                _updateTracker.ForceDirty(VertexBufferStateIndex);
             }
 
             // In some cases, the index type is also used to guess the
@@ -958,9 +948,6 @@ namespace Ryujinx.Graphics.Gpu.Engine.Threed
 
             _drawState.IsAnyVbInstanced = false;
 
-            bool drawIndexed = _drawState.DrawIndexed;
-            bool drawIndirect = _drawState.DrawIndirect;
-
             for (int index = 0; index < Constants.TotalVertexBuffers; index++)
             {
                 var vertexBuffer = _state.State.VertexBufferState[index];
@@ -988,14 +975,14 @@ namespace Ryujinx.Graphics.Gpu.Engine.Threed
                 ulong vbSize = endAddress.Pack() - address + 1;
                 ulong size;
 
-                if (_drawState.IbStreamer.HasInlineIndexData || drawIndexed || stride == 0 || instanced)
+                if (_drawState.IbStreamer.HasInlineIndexData || _drawState.DrawIndexed || stride == 0 || instanced)
                 {
                     // This size may be (much) larger than the real vertex buffer size.
                     // Avoid calculating it this way, unless we don't have any other option.
 
                     size = vbSize;
 
-                    if (stride > 0 && indexTypeSmall && drawIndexed && !drawIndirect && !instanced)
+                    if (stride > 0 && indexTypeSmall && _drawState.DrawIndexed && !instanced)
                     {
                         // If the index type is a small integer type, then we might be still able
                         // to reduce the vertex buffer size based on the maximum possible index value.
@@ -1377,8 +1364,7 @@ namespace Ryujinx.Graphics.Gpu.Engine.Threed
                 _state.State.AlphaTestEnable,
                 _state.State.AlphaTestFunc,
                 _state.State.AlphaTestRef,
-                ref attributeTypes,
-                _drawState.HasConstantBufferDrawParameters);
+                ref attributeTypes);
         }
 
         /// <summary>
