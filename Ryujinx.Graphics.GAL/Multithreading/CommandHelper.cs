@@ -157,6 +157,8 @@ namespace Ryujinx.Graphics.GAL.Multithreading
                 EndTransformFeedbackCommand.Run(ref GetCommand<EndTransformFeedbackCommand>(memory), threaded, renderer);
             _lookup[(int)CommandType.SetAlphaTest] = (Span<byte> memory, ThreadedRenderer threaded, IRenderer renderer) =>
                 SetAlphaTestCommand.Run(ref GetCommand<SetAlphaTestCommand>(memory), threaded, renderer);
+            _lookup[(int)CommandType.SetBlendStateAdvanced] = (Span<byte> memory, ThreadedRenderer threaded, IRenderer renderer) =>
+                SetBlendStateAdvancedCommand.Run(ref GetCommand<SetBlendStateAdvancedCommand>(memory), threaded, renderer);
             _lookup[(int)CommandType.SetBlendState] = (Span<byte> memory, ThreadedRenderer threaded, IRenderer renderer) =>
                 SetBlendStateCommand.Run(ref GetCommand<SetBlendStateCommand>(memory), threaded, renderer);
             _lookup[(int)CommandType.SetDepthBias] = (Span<byte> memory, ThreadedRenderer threaded, IRenderer renderer) =>

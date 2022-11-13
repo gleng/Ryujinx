@@ -51,6 +51,7 @@ namespace Ryujinx.Graphics.GAL
             bool supports3DTextureCompression,
             bool supportsBgraFormat,
             bool supportsR4G4Format,
+            bool supportsBlendEquationAdvanced,
             bool supportsFragmentShaderInterlock,
             bool supportsFragmentShaderOrderingIntel,
             bool supportsGeometryShaderPassthrough,
@@ -82,6 +83,7 @@ namespace Ryujinx.Graphics.GAL
             Supports3DTextureCompression = supports3DTextureCompression;
             SupportsBgraFormat = supportsBgraFormat;
             SupportsR4G4Format = supportsR4G4Format;
+            SupportsBlendEquationAdvanced = supportsBlendEquationAdvanced;
             SupportsFragmentShaderInterlock = supportsFragmentShaderInterlock;
             SupportsFragmentShaderOrderingIntel = supportsFragmentShaderOrderingIntel;
             SupportsGeometryShaderPassthrough = supportsGeometryShaderPassthrough;
