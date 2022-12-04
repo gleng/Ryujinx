@@ -65,6 +65,8 @@ namespace Ryujinx.Graphics.Shader.Translation
         public UInt128 NextInputAttributesComponents { get; private set; }
         public UInt128 ThisInputAttributesComponents { get; private set; }
 
+        public int AccessibleStorageBuffersMask { get; private set; }
+
         private int _usedConstantBuffers;
         private int _usedStorageBuffers;
         private int _usedStorageBuffersWrite;
@@ -126,6 +128,8 @@ namespace Ryujinx.Graphics.Shader.Translation
             Stage       = ShaderStage.Compute;
             GpuAccessor = gpuAccessor;
             Options     = options;
+
+            AccessibleStorageBuffersMask = (1 << GlobalMemory.StorageMaxCount) - 1;
 
             UsedInputAttributesPerPatch  = new HashSet<int>();
             UsedOutputAttributesPerPatch = new HashSet<int>();
@@ -427,6 +431,11 @@ namespace Ryujinx.Graphics.Shader.Translation
         public void SetUsedFeature(FeatureFlags flags)
         {
             UsedFeatures |= flags;
+        }
+
+        public void SetAccessibleStorageBuffersMask(int mask)
+        {
+            AccessibleStorageBuffersMask = mask;
         }
 
         public void SetUsedConstantBuffer(int slot)
