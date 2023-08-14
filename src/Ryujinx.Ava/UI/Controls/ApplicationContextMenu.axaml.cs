@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using Path = System.IO.Path;
-using UserId = LibHac.Fs.UserId;
 
 namespace Ryujinx.Ava.UI.Controls
 {
@@ -53,7 +52,7 @@ namespace Ryujinx.Ava.UI.Controls
 
         public void OpenUserSaveDirectory_Click(object sender, RoutedEventArgs args)
         {
-            if ((sender as MenuItem)?.DataContext is MainWindowViewModel viewModel)
+            if (sender is MenuItem { DataContext: MainWindowViewModel viewModel })
             {
                 OpenSaveDirectory(viewModel, SaveDataType.Account, userId: new UserId((ulong)viewModel.AccountManager.LastOpenedUser.UserId.High, (ulong)viewModel.AccountManager.LastOpenedUser.UserId.Low));
             }
@@ -300,7 +299,11 @@ namespace Ryujinx.Ava.UI.Controls
 
             if (viewModel?.SelectedApplication != null)
             {
-                await ApplicationHelper.ExtractSection(NcaSectionType.Code, viewModel.SelectedApplication.Path, viewModel.SelectedApplication.TitleName);
+                await ApplicationHelper.ExtractSection(
+                    viewModel.StorageProvider,
+                    NcaSectionType.Code,
+                    viewModel.SelectedApplication.Path,
+                    viewModel.SelectedApplication.TitleName);
             }
         }
 
@@ -310,7 +313,11 @@ namespace Ryujinx.Ava.UI.Controls
 
             if (viewModel?.SelectedApplication != null)
             {
-                await ApplicationHelper.ExtractSection(NcaSectionType.Data, viewModel.SelectedApplication.Path, viewModel.SelectedApplication.TitleName);
+                await ApplicationHelper.ExtractSection(
+                    viewModel.StorageProvider,
+                    NcaSectionType.Data,
+                    viewModel.SelectedApplication.Path,
+                    viewModel.SelectedApplication.TitleName);
             }
         }
 
@@ -320,7 +327,11 @@ namespace Ryujinx.Ava.UI.Controls
 
             if (viewModel?.SelectedApplication != null)
             {
-                await ApplicationHelper.ExtractSection(NcaSectionType.Logo, viewModel.SelectedApplication.Path, viewModel.SelectedApplication.TitleName);
+                await ApplicationHelper.ExtractSection(
+                    viewModel.StorageProvider,
+                    NcaSectionType.Logo,
+                    viewModel.SelectedApplication.Path,
+                    viewModel.SelectedApplication.TitleName);
             }
         }
 

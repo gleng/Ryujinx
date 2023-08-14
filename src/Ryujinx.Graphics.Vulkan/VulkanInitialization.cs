@@ -42,6 +42,7 @@ namespace Ryujinx.Graphics.Vulkan
             "VK_NV_viewport_array2",
             "VK_EXT_depth_clip_control",
             "VK_KHR_portability_subset", // As per spec, we should enable this if present.
+            "VK_EXT_4444_formats",
         };
 
         private static readonly string[] _requiredExtensions = {
@@ -377,8 +378,8 @@ namespace Ryujinx.Graphics.Vulkan
                 ShaderFloat64 = supportedFeatures.ShaderFloat64,
                 ShaderImageGatherExtended = supportedFeatures.ShaderImageGatherExtended,
                 ShaderStorageImageMultisample = supportedFeatures.ShaderStorageImageMultisample,
-                // ShaderStorageImageReadWithoutFormat = true,
-                // ShaderStorageImageWriteWithoutFormat = true,
+                ShaderStorageImageReadWithoutFormat = supportedFeatures.ShaderStorageImageReadWithoutFormat,
+                ShaderStorageImageWriteWithoutFormat = supportedFeatures.ShaderStorageImageWriteWithoutFormat,
                 TessellationShader = supportedFeatures.TessellationShader,
                 VertexPipelineStoresAndAtomics = supportedFeatures.VertexPipelineStoresAndAtomics,
                 RobustBufferAccess = useRobustBufferAccess,

@@ -50,9 +50,6 @@ namespace Ryujinx.Graphics.Vulkan
 
         private ShaderCollection _program;
 
-        private readonly Vector4<float>[] _renderScale = new Vector4<float>[73];
-        private int _fragmentScaleCount;
-
         protected FramebufferParams FramebufferParams;
         private Auto<DisposableFramebuffer> _framebuffer;
         private Auto<DisposableRenderPass> _renderPass;
@@ -74,7 +71,6 @@ namespace Ryujinx.Graphics.Vulkan
 
         private readonly VertexBufferUpdater _vertexBufferUpdater;
 
-        public SupportBufferUpdater SupportBufferUpdater;
         public IndexBufferPattern QuadsToTrisPattern;
         public IndexBufferPattern TriFanToTrisPattern;
 
@@ -119,9 +115,6 @@ namespace Ryujinx.Graphics.Vulkan
 
             ClearScissor = new Rectangle<int>(0, 0, 0xffff, 0xffff);
 
-            var defaultScale = new Vector4<float> { X = 1f, Y = 0f, Z = 0f, W = 0f };
-            new Span<Vector4<float>>(_renderScale).Fill(defaultScale);
-
             _storedBlend = new PipelineColorBlendAttachmentState[Constants.MaxRenderTargets];
 
             _newState.Initialize();
@@ -130,9 +123,6 @@ namespace Ryujinx.Graphics.Vulkan
         public void Initialize()
         {
             _descriptorSetUpdater.Initialize();
-
-            SupportBufferUpdater = new SupportBufferUpdater(Gd);
-            SupportBufferUpdater.UpdateRenderScale(_renderScale, 0, SupportBuffer.RenderScaleMaxCount);
 
             QuadsToTrisPattern = new IndexBufferPattern(Gd, 4, 6, 0, new[] { 0, 1, 2, 0, 2, 3 }, 4, false);
             TriFanToTrisPattern = new IndexBufferPattern(Gd, 3, 3, 2, new[] { int.MinValue, -1, 0 }, 1, true);
@@ -144,9 +134,9 @@ namespace Ryujinx.Graphics.Vulkan
             {
                 _drawCountSinceBarrier = DrawCount;
 
-                // Barriers apparently have no effect inside a render pass on MoltenVK.
+                // Barriers are not supported inside a render pass on Apple GPUs.
                 // As a workaround, end the render pass.
-                if (Gd.IsMoltenVk)
+                if (Gd.Vendor == Vendor.Apple)
                 {
                     EndRenderPass();
                 }
@@ -203,7 +193,7 @@ namespace Ryujinx.Graphics.Vulkan
         {
             EndRenderPass();
 
-            var dst = Gd.BufferManager.GetBuffer(CommandBuffer, destination, offset, size, true).Get(Cbs, offset, size).Value;
+            var dst = Gd.BufferManager.GetBuffer(CommandBuffer, destination, offset, size, true).Get(Cbs, offset, size, true).Value;
 
             BufferHolder.InsertBufferBarrier(
                 Gd,
@@ -255,9 +245,24 @@ namespace Ryujinx.Graphics.Vulkan
 
         public unsafe void ClearRenderTargetDepthStencil(int layer, int layerCount, float depthValue, bool depthMask, int stencilValue, int stencilMask)
         {
-            // TODO: Use stencilMask (fully)
+            // TODO: Use stencilMask (fully).
 
             if (FramebufferParams == null || !FramebufferParams.HasDepthStencil)
+            {
+                return;
+            }
+
+            var clearValue = new ClearValue(null, new ClearDepthStencilValue(depthValue, (uint)stencilValue));
+            var flags = depthMask ? ImageAspectFlags.DepthBit : 0;
+
+            if (stencilMask != 0)
+            {
+                flags |= ImageAspectFlags.StencilBit;
+            }
+
+            flags &= FramebufferParams.GetDepthStencilAspectFlags();
+
+            if (flags == ImageAspectFlags.None)
             {
                 return;
             }
@@ -268,14 +273,6 @@ namespace Ryujinx.Graphics.Vulkan
             }
 
             BeginRenderPass();
-
-            var clearValue = new ClearValue(null, new ClearDepthStencilValue(depthValue, (uint)stencilValue));
-            var flags = depthMask ? ImageAspectFlags.DepthBit : 0;
-
-            if (stencilMask != 0)
-            {
-                flags |= ImageAspectFlags.StencilBit;
-            }
 
             var attachment = new ClearAttachment(flags, 0, clearValue);
             var clearRect = FramebufferParams.GetClearRect(ClearScissor, layer, layerCount);
@@ -472,6 +469,10 @@ namespace Ryujinx.Graphics.Vulkan
                 return;
             }
 
+            var buffer = Gd.BufferManager
+                .GetBuffer(CommandBuffer, indirectBuffer.Handle, indirectBuffer.Offset, indirectBuffer.Size, false)
+                .Get(Cbs, indirectBuffer.Offset, indirectBuffer.Size).Value;
+
             UpdateIndexBufferPattern();
             RecreatePipelineIfNeeded(PipelineBindPoint.Graphics);
             BeginRenderPass();
@@ -501,10 +502,6 @@ namespace Ryujinx.Graphics.Vulkan
             }
             else
             {
-                var buffer = Gd.BufferManager
-                    .GetBuffer(CommandBuffer, indirectBuffer.Handle, indirectBuffer.Offset, indirectBuffer.Size, false)
-                    .Get(Cbs, indirectBuffer.Offset, indirectBuffer.Size).Value;
-
                 ResumeTransformFeedbackInternal();
 
                 Gd.Api.CmdDrawIndexedIndirect(CommandBuffer, buffer, (ulong)indirectBuffer.Offset, 1, (uint)indirectBuffer.Size);
@@ -518,14 +515,18 @@ namespace Ryujinx.Graphics.Vulkan
                 return;
             }
 
+            var countBuffer = Gd.BufferManager
+                .GetBuffer(CommandBuffer, parameterBuffer.Handle, parameterBuffer.Offset, parameterBuffer.Size, false)
+                .Get(Cbs, parameterBuffer.Offset, parameterBuffer.Size).Value;
+
+            var buffer = Gd.BufferManager
+                .GetBuffer(CommandBuffer, indirectBuffer.Handle, indirectBuffer.Offset, indirectBuffer.Size, false)
+                .Get(Cbs, indirectBuffer.Offset, indirectBuffer.Size).Value;
+
             UpdateIndexBufferPattern();
             RecreatePipelineIfNeeded(PipelineBindPoint.Graphics);
             BeginRenderPass();
             DrawCount++;
-
-            var countBuffer = Gd.BufferManager
-                .GetBuffer(CommandBuffer, parameterBuffer.Handle, parameterBuffer.Offset, parameterBuffer.Size, false)
-                .Get(Cbs, parameterBuffer.Offset, parameterBuffer.Size).Value;
 
             if (_indexBufferPattern != null)
             {
@@ -573,10 +574,6 @@ namespace Ryujinx.Graphics.Vulkan
             }
             else
             {
-                var buffer = Gd.BufferManager
-                    .GetBuffer(CommandBuffer, indirectBuffer.Handle, indirectBuffer.Offset, indirectBuffer.Size, false)
-                    .Get(Cbs, indirectBuffer.Offset, indirectBuffer.Size).Value;
-
                 ResumeTransformFeedbackInternal();
 
                 if (Gd.Capabilities.SupportsIndirectParameters)
@@ -612,14 +609,14 @@ namespace Ryujinx.Graphics.Vulkan
 
             // TODO: Support quads and other unsupported topologies.
 
+            var buffer = Gd.BufferManager
+                .GetBuffer(CommandBuffer, indirectBuffer.Handle, indirectBuffer.Offset, indirectBuffer.Size, false)
+                .Get(Cbs, indirectBuffer.Offset, indirectBuffer.Size, false).Value;
+
             RecreatePipelineIfNeeded(PipelineBindPoint.Graphics);
             BeginRenderPass();
             ResumeTransformFeedbackInternal();
             DrawCount++;
-
-            var buffer = Gd.BufferManager
-                .GetBuffer(CommandBuffer, indirectBuffer.Handle, indirectBuffer.Offset, indirectBuffer.Size, false)
-                .Get(Cbs, indirectBuffer.Offset, indirectBuffer.Size).Value;
 
             Gd.Api.CmdDrawIndirect(CommandBuffer, buffer, (ulong)indirectBuffer.Offset, 1, (uint)indirectBuffer.Size);
         }
@@ -637,20 +634,20 @@ namespace Ryujinx.Graphics.Vulkan
                 return;
             }
 
+            var buffer = Gd.BufferManager
+                .GetBuffer(CommandBuffer, indirectBuffer.Handle, indirectBuffer.Offset, indirectBuffer.Size, false)
+                .Get(Cbs, indirectBuffer.Offset, indirectBuffer.Size, false).Value;
+
+            var countBuffer = Gd.BufferManager
+                .GetBuffer(CommandBuffer, parameterBuffer.Handle, parameterBuffer.Offset, parameterBuffer.Size, false)
+                .Get(Cbs, parameterBuffer.Offset, parameterBuffer.Size, false).Value;
+
             // TODO: Support quads and other unsupported topologies.
 
             RecreatePipelineIfNeeded(PipelineBindPoint.Graphics);
             BeginRenderPass();
             ResumeTransformFeedbackInternal();
             DrawCount++;
-
-            var buffer = Gd.BufferManager
-                .GetBuffer(CommandBuffer, indirectBuffer.Handle, indirectBuffer.Offset, indirectBuffer.Size, false)
-                .Get(Cbs, indirectBuffer.Offset, indirectBuffer.Size).Value;
-
-            var countBuffer = Gd.BufferManager
-                .GetBuffer(CommandBuffer, parameterBuffer.Handle, parameterBuffer.Offset, parameterBuffer.Size, false)
-                .Get(Cbs, parameterBuffer.Offset, parameterBuffer.Size).Value;
 
             Gd.DrawIndirectCountApi.CmdDrawIndirectCount(
                 CommandBuffer,
@@ -666,8 +663,6 @@ namespace Ryujinx.Graphics.Vulkan
         {
             if (texture is TextureView srcTexture)
             {
-                SupportBufferUpdater.Commit();
-
                 var oldCullMode = _newState.CullMode;
                 var oldStencilTestEnable = _newState.StencilTestEnable;
                 var oldDepthTestEnable = _newState.DepthTestEnable;
@@ -709,27 +704,39 @@ namespace Ryujinx.Graphics.Vulkan
             _tfEnabled = false;
         }
 
-        public double GetCounterDivisor(CounterType type)
-        {
-            if (type == CounterType.SamplesPassed)
-            {
-                return _renderScale[0].X * _renderScale[0].X;
-            }
-
-            return 1;
-        }
-
         public bool IsCommandBufferActive(CommandBuffer cb)
         {
             return CommandBuffer.Handle == cb.Handle;
         }
 
+        internal void Rebind(Auto<DisposableBuffer> buffer, int offset, int size)
+        {
+            _descriptorSetUpdater.Rebind(buffer, offset, size);
+
+            if (_indexBuffer.Overlaps(buffer, offset, size))
+            {
+                _indexBuffer.BindIndexBuffer(Gd, Cbs);
+            }
+
+            for (int i = 0; i < _vertexBuffers.Length; i++)
+            {
+                if (_vertexBuffers[i].Overlaps(buffer, offset, size))
+                {
+                    _vertexBuffers[i].BindVertexBuffer(Gd, Cbs, (uint)i, ref _newState, _vertexBufferUpdater);
+                }
+            }
+
+            _vertexBufferUpdater.Commit(Cbs);
+        }
+
+#pragma warning disable CA1822 // Mark member as static
         public void SetAlphaTest(bool enable, float reference, CompareOp op)
         {
             // This is currently handled using shader specialization, as Vulkan does not support alpha test.
             // In the future, we may want to use this to write the reference value into the support buffer,
             // to avoid creating one version of the shader per reference value used.
         }
+#pragma warning restore CA1822
 
         public void SetBlendState(AdvancedBlendDescriptor blend)
         {
@@ -957,7 +964,7 @@ namespace Ryujinx.Graphics.Vulkan
 
             SignalStateChange();
 
-            if (_program.IsCompute)
+            if (internalProgram.IsCompute)
             {
                 EndRenderPass();
             }
@@ -1048,12 +1055,6 @@ namespace Ryujinx.Graphics.Vulkan
         {
             _framebufferUsingColorWriteMask = false;
             SetRenderTargetsInternal(colors, depthStencil, Gd.IsTBDR);
-        }
-
-        public void SetRenderTargetScale(float scale)
-        {
-            _renderScale[0].X = scale;
-            SupportBufferUpdater.UpdateRenderScale(_renderScale, 0, 1); // Just the first element.
         }
 
         public void SetScissors(ReadOnlySpan<Rectangle<int>> regions)
@@ -1303,7 +1304,7 @@ namespace Ryujinx.Graphics.Vulkan
             SignalStateChange();
         }
 
-        public void SetViewports(ReadOnlySpan<Viewport> viewports, bool disableTransform)
+        public void SetViewports(ReadOnlySpan<Viewport> viewports)
         {
             int maxViewports = Gd.Capabilities.SupportsMultiView ? Constants.MaxViewports : 1;
             int count = Math.Min(maxViewports, viewports.Length);
@@ -1326,19 +1327,6 @@ namespace Ryujinx.Graphics.Vulkan
                     viewport.Region.Height == 0f ? 1f : viewport.Region.Height,
                     Clamp(viewport.DepthNear),
                     Clamp(viewport.DepthFar)));
-            }
-
-            float disableTransformF = disableTransform ? 1.0f : 0.0f;
-            if (SupportBufferUpdater.Data.ViewportInverse.W != disableTransformF || disableTransform)
-            {
-                float scale = _renderScale[0].X;
-                SupportBufferUpdater.UpdateViewportInverse(new Vector4<float>
-                {
-                    X = scale * 2f / viewports[0].Region.Width,
-                    Y = scale * 2f / viewports[0].Region.Height,
-                    Z = 1,
-                    W = disableTransformF,
-                });
             }
 
             _newState.ViewportsCount = (uint)count;
@@ -1389,32 +1377,6 @@ namespace Ryujinx.Graphics.Vulkan
         public void TextureBarrierTiled()
         {
             TextureBarrier();
-        }
-
-        public void UpdateRenderScale(ReadOnlySpan<float> scales, int totalCount, int fragmentCount)
-        {
-            bool changed = false;
-
-            for (int index = 0; index < totalCount; index++)
-            {
-                if (_renderScale[1 + index].X != scales[index])
-                {
-                    _renderScale[1 + index].X = scales[index];
-                    changed = true;
-                }
-            }
-
-            // Only update fragment count if there are scales after it for the vertex stage.
-            if (fragmentCount != totalCount && fragmentCount != _fragmentScaleCount)
-            {
-                _fragmentScaleCount = fragmentCount;
-                SupportBufferUpdater.UpdateFragmentRenderScaleCount(_fragmentScaleCount);
-            }
-
-            if (changed)
-            {
-                SupportBufferUpdater.UpdateRenderScale(_renderScale, 0, 1 + totalCount);
-            }
         }
 
         protected void SignalCommandBufferChange()
@@ -1614,9 +1576,6 @@ namespace Ryujinx.Graphics.Vulkan
 
             DynamicState.ReplayIfDirty(Gd.Api, CommandBuffer);
 
-            // Commit changes to the support buffer before drawing.
-            SupportBufferUpdater.Commit();
-
             if (_needsIndexBufferRebind && _indexBufferPattern == null)
             {
                 _indexBuffer.BindIndexBuffer(Gd, Cbs);
@@ -1777,8 +1736,6 @@ namespace Ryujinx.Graphics.Vulkan
                 {
                     Gd.Api.DestroyPipelineCache(Device, PipelineCache, null);
                 }
-
-                SupportBufferUpdater.Dispose();
             }
         }
 
